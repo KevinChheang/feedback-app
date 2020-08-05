@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-# from forms import UserForm, TweetForm
+from forms import UserRegisterForm
 from models import User
 from sqlalchemy.exc import IntegrityError
 
@@ -16,6 +16,17 @@ toolbar = DebugToolbarExtension(app)
 
 @app.route("/")
 def homepage():
-    return "<h1>Welcome to my landing page</h1>"
+    return redirect("/register")
 
+@app.route("/register", methods=["GET", "POST"])
+def register_user():
+    form = UserRegisterForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        new_user = User.register(username=username, password=password)
+
+    return render_template("register.html", form=form)
 
