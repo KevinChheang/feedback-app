@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from forms import UserRegisterForm
+from forms import UserRegisterForm, UserLoginForm
 from models import db, connect_db, User
 from sqlalchemy.exc import IntegrityError
 
@@ -44,6 +44,27 @@ def register_user():
             return render_template("register.html", form=form)
 
     return render_template("register.html", form=form)
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    form = UserLoginForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        existing_user = User.authenticate(username, password)
+
+        if existing_user:
+            session["username"] = existing_user.username
+
+            flash(f"Welcome {existing_user.username}", "success")
+
+            return redirect("/secret")
+        else:
+            form.password.errors = ["Incorrect username/password"]
+    
+    return render_template("login.html", form=form)
 
 @app.route("/secret")
 def show_secret():
