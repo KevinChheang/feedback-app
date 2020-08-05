@@ -1,20 +1,26 @@
 {% extends "base.html" %}
 {% block title %}Registration{% endblock %}
 {% block content %}
-    <h1>Register</h1>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-
-        {% for field in form
-        if field.widget.input_type != 'hidden' %}
-        <div class="form-group">
-            {{ field.label }}
-            {{ field(class_="form-control") }}
-            {% for error in field.errors %}
-            <p class="text-warning">{{ error }}</p>
-            {% endfor %}
+    <h1 class="text-center">Register</h1>
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-8">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+        
+                {% for field in form
+                if field.widget.input_type != 'hidden' %}
+                <div class="form-group">
+                    {{ field.label }}
+                    {{ field(class_="form-control") }}
+                    {% for error in field.errors %}
+                    <p class="text-warning">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                <div class="text-center">
+                    <button class="btn btn-lg btn-primary">Create account</button>
+                </div>
+            </form>
         </div>
-        {% endfor %}
-        <button class="btn btn-primary">Register</button>
-    </form>
+    </div>
 {% endblock %}
