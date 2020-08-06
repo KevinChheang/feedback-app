@@ -9,3 +9,7 @@ nav {
 h1 {
     font-weight: 700;
 }
+
+.feedback-bg {
+    background-color: rgb(192, 197, 197);
+}

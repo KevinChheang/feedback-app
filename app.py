@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from forms import UserRegisterForm, UserLoginForm
-from models import db, connect_db, User
+from forms import UserRegisterForm, UserLoginForm, FeedbackForm
+from models import db, connect_db, User, Feedback
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import DataError
 
@@ -20,6 +20,8 @@ db.create_all() # create tables
 
 @app.route("/")
 def homepage():
+    if "username" in session:
+        return redirect(f"/users/{session['username']}")
     return redirect("/register")
 
 @app.route("/register", methods=["GET", "POST"])
@@ -50,9 +52,6 @@ def register_user():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if "username" not in session:
-        flash("Please create an account first.", "info")
-        return redirect("/register")
     form = UserLoginForm()
 
     if form.validate_on_submit():
@@ -90,4 +89,29 @@ def show_secret(username):
 
     user = User.query.get_or_404(username)
 
-    return render_template("user_info.html", user=user)
+    feedbacks = Feedback.query.filter_by(username=username).all()
+
+    return render_template("user_info.html", user=user, feedbacks=feedbacks)
+
+@app.route("/users/<username>/feedback/add", methods=["GET", "POST"])
+def add_feedback(username):
+    if "username" not in session:
+        flash("Please login/register to unlock.", "warning")
+        return redirect("/")
+
+    form = FeedbackForm()
+
+    if form.validate_on_submit():
+        title = form.title.data
+        content = form.content.data
+
+        feedback = Feedback(title=title, content=content, username=username)
+
+        db.session.add(feedback)
+        db.session.commit()
+
+        flash("Feedback submitted", "success")
+
+        return redirect("/users/{{user.username}}")
+
+    return render_template("feedback_form.html", form=form)

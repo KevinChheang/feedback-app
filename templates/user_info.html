@@ -7,5 +7,25 @@
             <li><h5>Username: {{user.username}}</h5></li>
             <li><h5>Email: {{user.email}}</h5></li>
         </ul>
+        <a href="/users/{{user.username}}/feedback/add" class="btn btn-primary">Add feedback</a>
+        <a href="#" class="btn btn-danger">Delete user</a>
+    </div>
+    
+    {% if feedbacks %}
+        <h3 class="mt-3">Your submitted feedbacks</h3>
+    {% endif %}
+
+    <div class="row">
+        {% for feedback in feedbacks %}
+            <div class="card col-md-5 mx-1 my-2 feedback-bg">
+                <div class="card-body">
+                    <h5 class="card-title">{{feedback.title}}</h5>
+                    <hr>
+                    <p class="card-text">{{feedback.content}}</p>
+                    <a href="#" class="card-link">Edit</a>
+                    <a href="#" class="card-link">Delete</a>
+                </div>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}
