@@ -17,14 +17,13 @@ class User(db.Model):
 
     username = db.Column(db.String(20), primary_key=True)
 
-    password = db.Column(db.Text, nullable=False)
-
     email = db.Column(db.String(50), nullable=False, unique=True)
 
+    password = db.Column(db.Text, nullable=False)
+    
     first_name = db.Column(db.String(30), nullable=False)
 
     last_name = db.Column(db.String(30), nullable=False)
-
 
     @classmethod
     def register(cls, first_name, last_name, email, username, password):
