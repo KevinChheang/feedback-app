@@ -12,10 +12,8 @@
             <button class="btn btn-danger">Delete user</button>
         </form>
     </div>
-    
-    {% if feedbacks %}
-        <h3 class="mt-3">Your submitted feedbacks</h3>
-    {% endif %}
+
+    <h3 class="mt-3">All feedbacks</h3>
 
     <div class="row">
         {% for feedback in feedbacks %}
@@ -24,8 +22,12 @@
                     <h5 class="card-title">{{feedback.title}}</h5>
                     <hr>
                     <p class="card-text">{{feedback.content}}</p>
-                    <a href="/feedback/{{feedback.id}}/update" class="card-link">Edit</a>
-                    <a href="#" class="card-link">Delete</a>
+                    {% if session["username"] == feedback.user.username %}
+                        <form action="/feedback/{{feedback.id}}/delete" method="POST">
+                            <a href="/feedback/{{feedback.id}}/update" class="btn btn-warning">Edit</a>
+                            <button class="btn btn-danger">Delete</button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

@@ -92,7 +92,7 @@ def show_secret(username):
 
     user = User.query.get_or_404(username)
 
-    feedbacks = Feedback.query.filter_by(username=username).all()
+    feedbacks = Feedback.query.all()
 
     return render_template("user_info.html", user=user, feedbacks=feedbacks)
 
@@ -154,3 +154,17 @@ def update_feedback(feedback_id):
         return redirect(f"/users/{existing_feedback.user.username}")
 
     return render_template("update_feedback.html", form=form)
+
+@app.route("/feedback/<int:feedback_id>/delete", methods=["POST"])
+def delete_feedback(feedback_id):
+    check_login()
+
+    feedback = Feedback.query.get_or_404(feedback_id)
+
+    Feedback.query.filter_by(id=feedback_id).delete()
+
+    db.session.commit()
+
+    flash("Feedback deleted successfully", "success")
+
+    return redirect(f"/users/{feedback.username}")
