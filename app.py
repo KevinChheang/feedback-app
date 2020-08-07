@@ -115,3 +115,24 @@ def add_feedback(username):
         return redirect("/users/{{user.username}}")
 
     return render_template("feedback_form.html", form=form)
+
+@app.route("/users/<username>/delete", methods=["POST"])
+def delete_user(username):
+    if "username" not in session:
+        flash("Please login/register to unlock.", "warning")
+        return redirect("/")
+
+    # The method does not offer in-Python cascading of relationships - 
+    # it is assumed that ON DELETE CASCADE/SET NULL/etc. 
+    # is configured for any foreign key references which require it, 
+    # otherwise the database may emit an integrity violation 
+    # if foreign key references are being enforced. 
+    user = db.session.query(User).filter(User.username==username).first()
+    db.session.delete(user)
+    db.session.commit()
+
+    session.pop("username")
+    
+    flash("User deleted successfully", "success")
+
+    return redirect("/")
