@@ -119,6 +119,10 @@ def add_feedback(username):
 
 @app.route("/users/<username>/delete", methods=["POST"])
 def delete_user(username):
+    """
+    Right now each user can delete themself, which is good for now.
+    Further update will only allow admin user to delete individual user.
+    """
     check_login()
 
     # The method does not offer in-Python cascading of relationships - 
