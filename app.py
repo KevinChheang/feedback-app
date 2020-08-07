@@ -18,10 +18,16 @@ toolbar = DebugToolbarExtension(app)
 connect_db(app) # connect to db
 db.create_all() # create tables
 
+def check_login():
+    if "username" not in session:
+        flash("Please login/register to unlock.", "warning")
+        return redirect("/")
+
 @app.route("/")
 def homepage():
     if "username" in session:
         return redirect(f"/users/{session['username']}")
+
     return redirect("/register")
 
 @app.route("/register", methods=["GET", "POST"])
@@ -80,11 +86,8 @@ def logout():
 
 @app.route("/users/<username>")
 def show_secret(username):
-    if "username" not in session:
-        flash("Please login/register to unlock.", "warning")
-        return redirect("/")
-    elif session["username"] != username:
-        flash("Invalid URL address", "danger")
+    check_login()
+    if session["username"] != username:
         return redirect(f"/users/{session['username']}")
 
     user = User.query.get_or_404(username)
@@ -95,9 +98,7 @@ def show_secret(username):
 
 @app.route("/users/<username>/feedback/add", methods=["GET", "POST"])
 def add_feedback(username):
-    if "username" not in session:
-        flash("Please login/register to unlock.", "warning")
-        return redirect("/")
+    check_login()
 
     form = FeedbackForm()
 
@@ -118,9 +119,7 @@ def add_feedback(username):
 
 @app.route("/users/<username>/delete", methods=["POST"])
 def delete_user(username):
-    if "username" not in session:
-        flash("Please login/register to unlock.", "warning")
-        return redirect("/")
+    check_login()
 
     # The method does not offer in-Python cascading of relationships - 
     # it is assumed that ON DELETE CASCADE/SET NULL/etc. 
@@ -132,7 +131,26 @@ def delete_user(username):
     db.session.commit()
 
     session.pop("username")
-    
+
     flash("User deleted successfully", "success")
 
     return redirect("/")
+
+@app.route("/feedback/<int:feedback_id>/update", methods=["GET", "POST"])
+def update_feedback(feedback_id):
+    check_login()
+
+    existing_feedback = Feedback.query.get_or_404(feedback_id)
+
+    form = FeedbackForm(obj=existing_feedback)
+
+    if form.validate_on_submit():
+        existing_feedback.title = form.title.data
+        existing_feedback.content = form.content.data
+
+        db.session.add(existing_feedback)
+        db.session.commit()
+
+        return redirect(f"/users/{existing_feedback.user.username}")
+
+    return render_template("update_feedback.html", form=form)
